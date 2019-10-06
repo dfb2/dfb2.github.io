@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.5.0 -->
+<title>Jupyter notebook | Davíð Freyr Björnsson</title>
+<meta name="generator" content="Jekyll v3.8.5" />
+<meta property="og:title" content="Jupyter notebook" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="# Assignment 4 ## Students: Davíð Freyr Björnsson Eric Guldbrand Time spent: 29 hours" />
+<meta property="og:description" content="# Assignment 4 ## Students: Davíð Freyr Björnsson Eric Guldbrand Time spent: 29 hours" />
+<link rel="canonical" href="http://localhost:4000/update/ds/2019/10/06/assignment.html" />
+<meta property="og:url" content="http://localhost:4000/update/ds/2019/10/06/assignment.html" />
+<meta property="og:site_name" content="Davíð Freyr Björnsson" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-10-06T00:00:00+02:00" />
+<script type="application/ld+json">
+{"description":"# Assignment 4 ## Students: Davíð Freyr Björnsson Eric Guldbrand Time spent: 29 hours","headline":"Jupyter notebook","dateModified":"2019-10-06T00:00:00+02:00","datePublished":"2019-10-06T00:00:00+02:00","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/update/ds/2019/10/06/assignment.html"},"url":"http://localhost:4000/update/ds/2019/10/06/assignment.html","@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Davíð Freyr Björnsson" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Davíð Freyr Björnsson</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Jupyter notebook</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2019-10-06T00:00:00+02:00" itemprop="datePublished">Oct 6, 2019
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p># Assignment 4
+ ## Students:</p>
+<ul>
+  <li>Davíð Freyr Björnsson</li>
+  <li>Eric Guldbrand</li>
+  <li>Time spent: 29 hours</li>
+</ul>
+
+<p><strong>1.</strong> Preprocessing: <br />
+<strong>a.</strong> Note that the email files contain a lot of extra information, besides the actual message. Ignore that for now, and run on the entire text. Further down (in the higher grade part), you will be asked to filter out the headers and footers.<br />
+<strong>b.</strong> We don’t want to train and test on the same data. Split the spam and the ham datasets in a training set and a test set in separate folders.</p>
+
+<p>See split_data.py</p>
+
+<p><strong>2.</strong> Write a Python program that:<br />
+<strong>a.</strong> Takes the four datasets (hamtrain, spamtrain, hamtest, and spamtest) as input.<br />
+<strong>b.</strong> Trains on the training sets using Maximum Likelihood. Uses Laplace add-one smoothing
+to avoid zero-counts of any tokens. [Tip: to avoid working with too low probabilities, use
+log probs and sums instead of probabilities and products.]<br />
+<strong>c.</strong> Runs a Naïve Bayes classifier on the test sets and outputs the classification results to the
+screen, including
+• The number of emails in each of the four data sets.
+• The percentage of the ham and spam test sets that were classified correctly.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="n">easy_ham_train</span> <span class="o">=</span> <span class="s">"./data/train_easy_ham"</span>
+<span class="n">hard_ham_train</span> <span class="o">=</span> <span class="s">"./data/train_hard_ham"</span>
+<span class="n">spam_train</span> <span class="o">=</span> <span class="s">"./data/train_spam"</span>
+
+<span class="n">easy_ham_test</span> <span class="o">=</span> <span class="s">"./data/test_easy_ham"</span>
+<span class="n">hard_ham_test</span> <span class="o">=</span> <span class="s">"./data/test_hard_ham"</span>
+<span class="n">spam_test</span> <span class="o">=</span> <span class="s">"./data/test_spam"</span>
+
+<span class="c"># Takes folder path as input, returns a list of</span>
+<span class="c"># lists of all emails</span>
+<span class="k">def</span> <span class="nf">list_of_emails</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="n">email_word_lists</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">filePath</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s">"/*"</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="s">'r'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">"latin-1"</span><span class="p">)</span> <span class="k">as</span> <span class="n">email</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">email</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">word_list</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="c"># Create a dictionary with email words as values</span>
+        <span class="n">email_word_lists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">word_list</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">email_word_lists</span>
+
+<span class="c"># Returns a dictionary where each key is a word in email_list</span>
+<span class="c"># and the value is the number of emails that word occurs in.</span>
+<span class="c"># The result will contain one key for each unique word.</span>
+<span class="k">def</span> <span class="nf">calc_occurrences</span><span class="p">(</span><span class="n">email_list</span><span class="p">):</span>
+    <span class="n">all_words</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">email_list</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sublist</span><span class="p">]</span> <span class="c"># Flatten</span>
+    <span class="n">unique_words</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">all_words</span><span class="p">))</span>
+    <span class="n">dictionary</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">unique_words</span><span class="p">:</span>
+        <span class="n">dictionary</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">email</span> <span class="ow">in</span> <span class="n">email_list</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">email</span><span class="p">:</span>
+                    <span class="n">dictionary</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">dictionary</span>
+
+<span class="c"># Counts the number of occurences of key in</span>
+<span class="c"># email list</span>
+<span class="k">def</span> <span class="nf">occurrences_in</span><span class="p">(</span><span class="n">email_dict</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">email_dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">email_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+<span class="c"># ham_data is a tuple (nr of emails, dict)</span>
+<span class="c"># Where 'dict' is a dictionary where each key is a word and each value is the number of emails that word occur in.</span>
+<span class="c"># nr of emails is the total number of emails the dict was created on</span>
+<span class="k">def</span> <span class="nf">isHam</span><span class="p">(</span><span class="n">ham_data</span><span class="p">,</span> <span class="n">spam_data</span><span class="p">,</span> <span class="n">test_email</span><span class="p">):</span>
+    <span class="c"># Calculate combined number of words in hamtrain</span>
+    <span class="c"># and spamtrain</span>
+    <span class="n">likelihood_ham</span> <span class="o">=</span> <span class="n">likelihood_spam</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">N_ham</span> <span class="o">=</span> <span class="n">ham_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">N_spam</span> <span class="o">=</span> <span class="n">spam_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">hamdict</span> <span class="o">=</span> <span class="n">ham_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">spamdict</span> <span class="o">=</span> <span class="n">spam_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="c"># List of unique words in test set</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">test_email</span><span class="p">))</span>
+    <span class="n">K</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span>
+    <span class="c"># Calculate probability of email being ham/spam</span>
+    <span class="c"># with Laplace smoothing, alpha := 1</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+        <span class="n">hamtrain_count</span> <span class="o">=</span> <span class="n">spamtrain_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">hamtrain_count</span> <span class="o">=</span> <span class="n">occurrences_in</span><span class="p">(</span><span class="n">hamdict</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+        <span class="n">spamtrain_count</span> <span class="o">=</span> <span class="n">occurrences_in</span><span class="p">(</span><span class="n">spamdict</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+        <span class="n">likelihood_ham</span> <span class="o">+=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="n">hamtrain_count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">N_ham</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">K</span><span class="o">*</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">likelihood_spam</span> <span class="o">+=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="n">spamtrain_count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">N_spam</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">K</span><span class="o">*</span><span class="mi">1</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">likelihood_ham</span> <span class="o">&gt;</span> <span class="n">likelihood_spam</span>
+
+<span class="c"># Returns how many emails were classified as ham</span>
+<span class="k">def</span> <span class="nf">howManyHam</span><span class="p">(</span><span class="n">ham_data</span><span class="p">,</span> <span class="n">spam_data</span><span class="p">,</span> <span class="n">test</span><span class="p">):</span>
+    <span class="n">predictedHam</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">email</span> <span class="ow">in</span> <span class="n">test</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">isHam</span><span class="p">(</span><span class="n">ham_data</span><span class="p">,</span> <span class="n">spam_data</span><span class="p">,</span> <span class="n">email</span><span class="p">):</span>
+            <span class="n">predictedHam</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">predictedHam</span>
+
+<span class="c"># Given paths to ham train folders,</span>
+<span class="c"># Builds ham and spam data</span>
+<span class="k">def</span> <span class="nf">build_train_data</span><span class="p">(</span><span class="n">ham_train</span><span class="p">):</span>
+    <span class="n">hamtrain</span> <span class="o">=</span> <span class="n">list_of_emails</span><span class="p">(</span><span class="n">ham_train</span><span class="p">)</span>
+    <span class="n">spamtrain</span> <span class="o">=</span> <span class="n">list_of_emails</span><span class="p">(</span><span class="n">spam_train</span><span class="p">)</span>
+
+    <span class="n">hamdict</span> <span class="o">=</span> <span class="n">calc_occurrences</span><span class="p">(</span><span class="n">hamtrain</span><span class="p">)</span>
+    <span class="n">spamdict</span> <span class="o">=</span> <span class="n">calc_occurrences</span><span class="p">(</span><span class="n">spamtrain</span><span class="p">)</span>
+
+    <span class="n">ham_data</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">hamtrain</span><span class="p">),</span> <span class="n">hamdict</span><span class="p">)</span>
+    <span class="n">spam_data</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">spamtrain</span><span class="p">),</span> <span class="n">spamdict</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ham_data</span><span class="p">,</span> <span class="n">spam_data</span>
+
+<span class="c"># Given paths to ham train and test set folders,</span>
+<span class="c"># calculate the accuracy of predicting ham and spam</span>
+<span class="k">def</span> <span class="nf">calc_accuracy</span><span class="p">(</span><span class="n">ham_data</span><span class="p">,</span> <span class="n">spam_data</span><span class="p">,</span> <span class="n">hamtest</span><span class="p">,</span> <span class="n">spamtest</span><span class="p">):</span>
+    <span class="n">hamCount</span> <span class="o">=</span> <span class="n">howManyHam</span><span class="p">(</span><span class="n">ham_data</span><span class="p">,</span> <span class="n">spam_data</span><span class="p">,</span> <span class="n">hamtest</span><span class="p">)</span>
+    <span class="n">totalHam</span> <span class="o">=</span> <span class="n">ham_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">ham_accuracy</span> <span class="o">=</span> <span class="n">hamCount</span> <span class="o">/</span> <span class="n">totalHam</span>
+
+    <span class="n">hamCount</span> <span class="o">=</span> <span class="n">howManyHam</span><span class="p">(</span><span class="n">ham_data</span><span class="p">,</span> <span class="n">spam_data</span><span class="p">,</span> <span class="n">spamtest</span><span class="p">)</span>
+    <span class="n">totalSpam</span> <span class="o">=</span> <span class="n">spam_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">spam_accuracy</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">hamCount</span> <span class="o">/</span> <span class="n">totalSpam</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ham_accuracy</span><span class="p">,</span> <span class="n">spam_accuracy</span>
+
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">easy_ham_data</span><span class="p">,</span> <span class="n">spam_data</span> <span class="o">=</span> <span class="n">build_train_data</span><span class="p">(</span><span class="n">easy_ham_train</span><span class="p">)</span>
+<span class="n">hard_ham_data</span><span class="p">,</span> <span class="n">spam_data</span> <span class="o">=</span> <span class="n">build_train_data</span><span class="p">(</span><span class="n">hard_ham_train</span><span class="p">)</span>
+
+<span class="n">easy_ham_accuracy</span><span class="p">,</span> <span class="n">easy_spam_accuracy</span> <span class="o">=</span> <span class="n">calc_accuracy</span><span class="p">(</span><span class="n">easy_ham_data</span><span class="p">,</span> <span class="n">spam_data</span><span class="p">,</span> <span class="n">list_of_emails</span><span class="p">(</span><span class="n">easy_ham_test</span><span class="p">),</span> <span class="n">list_of_emails</span><span class="p">(</span><span class="n">spam_test</span><span class="p">))</span>
+<span class="n">hard_ham_accuracy</span><span class="p">,</span> <span class="n">hard_spam_accuracy</span> <span class="o">=</span> <span class="n">calc_accuracy</span><span class="p">(</span><span class="n">hard_ham_data</span><span class="p">,</span> <span class="n">spam_data</span><span class="p">,</span> <span class="n">list_of_emails</span><span class="p">(</span><span class="n">hard_ham_test</span><span class="p">),</span> <span class="n">list_of_emails</span><span class="p">(</span><span class="n">spam_test</span><span class="p">))</span>
+
+</code></pre></div></div>
+
+<p>The program trains on the data using maximum likelihood estimation, the label Y is found, that maximizes the likelihood function:
+<script type="math/tex">\sum_{i=1}^n \log P(X_i|Y)</script> Where <script type="math/tex">P(X_k | Y) = \frac{\# \{\text{label Y,} \text{feature} X_k\} + \alpha}{N + 2K\alpha}</script> and we set <script type="math/tex">\alpha := 1</script></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"Number of easy ham training emails:"</span><span class="p">,</span> <span class="n">easy_ham_data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Number of easy ham test emails:"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">list_of_emails</span><span class="p">(</span><span class="n">easy_ham_test</span><span class="p">)))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Number of hard ham training emails:"</span><span class="p">,</span> <span class="n">hard_ham_data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Number of hard ham test emails:"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">list_of_emails</span><span class="p">(</span><span class="n">hard_ham_test</span><span class="p">)))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Number of spam train emails:"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">list_of_emails</span><span class="p">(</span><span class="n">spam_train</span><span class="p">)))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Number of spam test emails:"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">list_of_emails</span><span class="p">(</span><span class="n">spam_test</span><span class="p">)))</span>
+<span class="k">print</span><span class="p">()</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">"Spam vs easy ham, ham accuracy:"</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">easy_ham_accuracy</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s">"</span><span class="si">%</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Spam vs easy ham, spam accuracy:"</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">easy_spam_accuracy</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="s">"</span><span class="si">%</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Spam vs hard ham, ham accuracy:"</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">hard_ham_accuracy</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="s">"</span><span class="si">%</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Spam vs hard ham, spam accuracy:"</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">hard_spam_accuracy</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="s">"</span><span class="si">%</span><span class="s">"</span><span class="p">)</span>
+
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Number of easy ham training emails: 844
+Number of easy ham test emails: 781
+Number of hard ham training emails: 82
+Number of hard ham test emails: 51
+Number of spam train emails: 191
+Number of spam test emails: 101
+
+Spam vs easy ham, ham accuracy: 92.18 %
+Spam vs easy ham, spam accuracy: 92.67 %
+Spam vs hard ham, ham accuracy: 56.1 %
+Spam vs hard ham, spam accuracy: 99.48 %
+</code></pre></div></div>
+
+<ol>
+  <li>To avoid classification based on common and uninformative it is common to filter these out.<br />
+<strong>a.</strong> Argue why this may be useful. Discuss how this could be done. Here’s a list of common words, also known as stop words, that might be useful https://algs4.cs.princeton.edu/35applications/stopwords.txt.<br />
+<strong>b.</strong> Choose a method to filter out common words and include it in your code. Run the updated program on your data and record how the results differ from 3.</li>
+</ol>
+
+<p>Filtering out common words increases the variability in the training dataset which makes it more likely that the classifier will detect subtle differences between spam and ham emails.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Given a data tuple (nr of emails, dict)</span>
+<span class="c"># Sets all values in the dict to 0 for words on the input word list</span>
+<span class="k">def</span> <span class="nf">remove_common</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">wordsToRemove</span><span class="p">):</span>
+    <span class="n">newdict</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">wordsToRemove</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">newdict</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">newdict</span><span class="p">)</span>
+
+<span class="n">stop_words_path</span> <span class="o">=</span> <span class="s">"./downloaded_data/stopwords.txt"</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">stop_words_path</span><span class="p">,</span> <span class="s">'r'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">"latin-1"</span><span class="p">)</span> <span class="k">as</span> <span class="n">text</span><span class="p">:</span>
+    <span class="n">common_words</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="n">common_words</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">w</span><span class="p">:</span> <span class="n">w</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">),</span> <span class="n">common_words</span><span class="p">))</span>
+
+<span class="c"># Remove common words from the data and test classification again</span>
+<span class="n">hard_ham_data_nc</span> <span class="o">=</span> <span class="n">remove_common</span><span class="p">(</span><span class="n">hard_ham_data</span><span class="p">,</span> <span class="n">common_words</span><span class="p">)</span>
+<span class="n">spam_data_nc</span> <span class="o">=</span> <span class="n">remove_common</span><span class="p">(</span><span class="n">spam_data</span><span class="p">,</span> <span class="n">common_words</span><span class="p">)</span>
+<span class="n">easy_ham_data_nc</span> <span class="o">=</span> <span class="n">remove_common</span><span class="p">(</span><span class="n">easy_ham_data</span><span class="p">,</span> <span class="n">common_words</span><span class="p">)</span>
+
+<span class="n">easy_ham_accuracy_nc</span><span class="p">,</span> <span class="n">easy_spam_accuracy_nc</span> <span class="o">=</span> <span class="n">calc_accuracy</span><span class="p">(</span><span class="n">easy_ham_data_nc</span><span class="p">,</span> <span class="n">spam_data_nc</span><span class="p">,</span> <span class="n">list_of_emails</span><span class="p">(</span><span class="n">easy_ham_test</span><span class="p">),</span> <span class="n">list_of_emails</span><span class="p">(</span><span class="n">spam_test</span><span class="p">))</span>
+<span class="n">hard_ham_accuracy_nc</span><span class="p">,</span> <span class="n">hard_spam_accuracy_nc</span> <span class="o">=</span> <span class="n">calc_accuracy</span><span class="p">(</span><span class="n">hard_ham_data_nc</span><span class="p">,</span> <span class="n">spam_data_nc</span><span class="p">,</span> <span class="n">list_of_emails</span><span class="p">(</span><span class="n">hard_ham_test</span><span class="p">),</span> <span class="n">list_of_emails</span><span class="p">(</span><span class="n">spam_test</span><span class="p">))</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">"Spam vs easy ham, ham accuracy:"</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">easy_ham_accuracy_nc</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s">"</span><span class="si">%</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Spam vs easy ham, spam accuracy:"</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">easy_spam_accuracy_nc</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="s">"</span><span class="si">%</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Spam vs hard ham, ham accuracy:"</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">hard_ham_accuracy_nc</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="s">"</span><span class="si">%</span><span class="s">"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Spam vs hard ham, spam accuracy:"</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">hard_spam_accuracy_nc</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="s">"</span><span class="si">%</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Spam vs easy ham, ham accuracy: 91.35 %
+Spam vs easy ham, spam accuracy: 97.38 %
+Spam vs hard ham, ham accuracy: 58.54 %
+Spam vs hard ham, spam accuracy: 99.48 %
+</code></pre></div></div>
+
+  </div><a class="u-url" href="/update/ds/2019/10/06/assignment.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Davíð Freyr Björnsson</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Davíð Freyr Björnsson</li><li><a class="u-email" href="mailto:david24099@gmail.com">david24099@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/jekyll"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">jekyll</span></a></li><li><a href="https://www.twitter.com/jekyllrb"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">jekyllrb</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
