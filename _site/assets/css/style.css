@@ -740,7 +740,7 @@ header {
   margin: 20px 0;
   width: 100%; }
 
-.container img {
+img[src*="#profile"] {
   width: 30%;
   padding-right: 50px;
   float: left; }
