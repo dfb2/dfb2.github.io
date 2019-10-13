@@ -214,7 +214,14 @@ header {
 .post-container {
 	img {
 		margin: 20px 0;
+		width: 100%;
 	}
+}
+
+.img_logo{
+	width: 30%;
+	padding-right: 50px;
+	float: left;
 }
 
 .navbar {
